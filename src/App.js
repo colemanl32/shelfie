@@ -1,40 +1,55 @@
-import React, {Component} from 'react';
-import Dashboard from './components/dashboard/Dashboard';
+import React, { Component } from 'react'
+import './App.css'
+import Dashboard from './components/dashboard/Dashboard'
 import Form from './components/form/Form'
 import Header from './components/header/Header'
+import axios from 'axios'
 
-
-export default class App extends Component {
-  constructor(){
-    super()
+class App extends Component {
+  constructor() {
+    super();
 
     this.state = {
-      inventory: [
-        {
-          name: "Shirt",
-          price: 25,
-          image: ""
-        },
-        {
-          name: "Hoodie",
-          price: 55,
-          image: ""
-        },
-        {
-          name: "Hat",
-          price: 20,
-          image: ""
-        }
-      ]
+      inventory: [],
+      currentSelectedProduct: {}
     }
+
+
+    this.getInventory = this.getInventory.bind(this)
   }
-  render(){
-    return(
-      <div>
-        <Dashboard />
-        <Form />
+
+  componentDidMount() {
+    this.getInventory()
+  }
+
+  getInventory() {
+    axios.get('/api/inventory').then(response => {
+      console.log(response)
+      this.setState({ inventory: response.data })
+    }).catch(error => alert(error, "Didn't get a inventory back."))
+  }
+
+  updateProduct = (product) => {
+    this.setState({ currentSelectedProduct: product })
+  }
+
+  render() {
+    console.log(this.state.inventory)
+    return (
+      <div className="App">
         <Header />
+        <Dashboard
+          inventory={this.state.inventory}
+          getInventory={this.getInventory}
+          updateProduct={this.updateProduct}
+        />
+        <Form
+          getInventory={this.getInventory}
+          currentSelectedProduct={this.state.currentSelectedProduct}
+        />
       </div>
     )
   }
 }
+
+export default App
